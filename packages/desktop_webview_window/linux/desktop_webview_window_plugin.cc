@@ -67,13 +67,43 @@ static void webview_window_plugin_handle_method_call(
     }
     auto window_id = fl_value_get_int(fl_value_lookup_string(args, "viewId"));
     auto url = fl_value_get_string(fl_value_lookup_string(args, "url"));
+    auto headers = fl_value_lookup_string(args, "headers");
 
     if (!self->windows->count(window_id)) {
       fl_method_call_respond_error(method_call, "0", "can not found webview for viewId", nullptr, nullptr);
       return;
     }
+    
+    if (headers == nullptr) {
+      self->windows->at(window_id)->Navigate(url);
+    }
+    else {
+      if (fl_value_get_type(headers) != FL_VALUE_TYPE_MAP) {
+        fl_method_call_respond_error(method_call, "0", "create args[headers] is not map", nullptr, nullptr);
+        return;
+      }
+      
+      size_t length = fl_value_get_length(headers);
+      if (length <= 0) {
+        self->windows->at(window_id)->Navigate(url);
+      }
+      else {
+        std::map<const char *, const char *> requestHeaders;      
+        for (size_t i = 0; i < length; i++)
+        {
+          auto key = fl_value_get_map_key(headers, i);
+          auto val = fl_value_get_map_value(headers, i);
 
-    self->windows->at(window_id)->Navigate(url);
+          auto k = fl_value_get_string(key);
+          auto v = fl_value_get_string(val);
+
+          requestHeaders.insert(std::pair<const char *, const char *>(k, v));
+        }
+
+        self->windows->at(window_id)->Navigate(url, requestHeaders);
+      }
+    }
+
     fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else if (strcmp(method, "addScriptToExecuteOnDocumentCreated") == 0) {
     auto *args = fl_method_call_get_args(method_call);

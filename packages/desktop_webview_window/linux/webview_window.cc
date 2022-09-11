@@ -127,6 +127,23 @@ void WebviewWindow::Navigate(const char *url) {
   webkit_web_view_load_uri(WEBKIT_WEB_VIEW(webview_), url);
 }
 
+void WebviewWindow::Navigate(const char *url, std::map<const char *, const char *> headers)
+{
+  WebKitURIRequest *request = webkit_uri_request_new(url);
+
+  SoupMessageHeaders *msgHeaders = webkit_uri_request_get_http_headers(request);
+  std::map<const char *, const char *>::iterator it;
+  for (it = headers.begin(); it != headers.end(); ++it)
+  {
+    const char *k = it->first;
+    const char *v = it->second;
+
+    soup_message_headers_append(msgHeaders, k, v);
+  }
+
+  webkit_web_view_load_request(WEBKIT_WEB_VIEW(webview_), request);
+}
+
 void WebviewWindow::RunJavaScriptWhenContentReady(const char *java_script) {
   auto *manager = webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(webview_));
   webkit_user_content_manager_add_script(

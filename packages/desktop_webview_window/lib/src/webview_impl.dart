@@ -13,6 +13,8 @@ class WebviewImpl extends Webview {
   final MethodChannel channel;
 
   final Map<String, JavaScriptMessageHandler> _javaScriptMessageHandlers = {};
+  
+  final Map<String, String> _headers = {};
 
   bool _closed = false;
 
@@ -111,12 +113,23 @@ class WebviewImpl extends Webview {
     }
     _promptHandler = handler;
   }
+  
+  @override
+  void appendHeader(String key, String val) {
+    _headers[key] = val;
+  }
+
+  @override
+  void removeHeader(String key) {
+    _headers.remove(key);
+  }
 
   @override
   void launch(String url) async {
     await channel.invokeMethod("launch", {
       "url": url,
       "viewId": viewId,
+      "headers": _headers,
     });
   }
 
