@@ -11,6 +11,7 @@
 #include <functional>
 
 #include <string>
+#include <map>
 
 class WebviewWindow {
  public:
@@ -25,6 +26,8 @@ class WebviewWindow {
   virtual ~WebviewWindow();
 
   void Navigate(const char *url);
+  
+  void Navigate(const char *url, std::map<const char *, const char *> headers);
 
   void RunJavaScriptWhenContentReady(const char *java_script);
 

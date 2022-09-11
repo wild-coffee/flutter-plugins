@@ -31,6 +31,12 @@ abstract class Webview {
 
   /// available: macOS
   void setPromptHandler(PromptHandler? handler);
+  
+  /// append request header
+  void appendHeader(String key, String val);
+
+  /// remove request header
+  void removeHeader(String key);
 
   /// Navigates to the given URL.
   void launch(String url);
